@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    input {
+      padding: 5px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 5px 10px;
+    }
+    #result {
+      margin-top: 20px;
+    }
+    .c-120{
+      margin: 30px auto;
+    }
+    .btn-20 {
+      color: white;
+      background-color: rgb(9, 71, 114);
+      border: none;
+    }
+    .btn-20:hover {
+      background-color: white;
+      color: rgb(9, 71, 114);
+      border: 1px solid rgb(9, 71, 114);
+    }
+    .cols{
+      border: 1px solid rgb(157, 149, 149);
+    }
+    .span1{
+      color: rgb(157, 149, 149);
+    }
+  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+</head>
+<body>
+  <nav class="navbar navbar-light bg-primary">
+    <div class="container-fluid justify-content-center">
+      <a class="navbar-brand text-white">Weatheria</a>
+    </div>
+  </nav>
+<div class="container c-120">
+  <label for="cities" >Enter Cities (Comma Seperated): </label>
+  <input type="search" name="cities" id="cities" placeholder="e.g. London,Paris"/>
+</div>
+<div class="container c-120">
+  <button class="btn-20" onclick="getWeather()">Check</button>
+</div>
+<div class="container">
+  <div class="row" id="weather-row">
+
+  </div>
+</div>
+  <script>
+    async function getWeather() {
+      const citiesInput = document.getElementById('cities').value;
+      const cities = citiesInput.split(',');
+
+      try {
+        const response = await fetch('http://localhost:3000/getWeather', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ cities }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        displayResult(result);
+      } catch (error) {
+        console.error('Error fetching weather data:', error.message);
+      }
+    }
+
+    function displayResult(result) {
+      const resultContainer = document.getElementById('weather-row');
+      resultContainer.innerHTML = '';
+
+      for (const city in result.weather) {
+        const weatherInfo_half = result.weather[city];
+
+        const col_lg = document.createElement('div');
+        col_lg.className = 'col-lg-4 col-md-6 col-sm-6 cols';
+        const cityName = document.createElement('h3');
+        cityName.textContent = `${weatherInfo_half.cityName}`;
+        cityName.className = 'name text-center';
+        const hrElement = document.createElement('hr');
+        const p1 = document.createElement('p')
+        p1.className = 'd-flex justify-content-around line-between-spans'
+        const temp = document.createElement('span')
+        temp.textContent = `${weatherInfo_half.temperature}`
+        const line = document.createElement('span')
+        line.textContent = '|'
+        line.className = 'span1'
+        const condition = document.createElement('span')
+        condition.textContent = `${weatherInfo_half.weatherCondition}`
+      
+        resultContainer.appendChild(col_lg);
+        col_lg.appendChild(cityName);
+        col_lg.append(hrElement);
+        p1.appendChild(temp);
+        p1.appendChild(line);
+        p1.appendChild(condition);
+        col_lg.appendChild(p1);
+
+      }
+
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>
